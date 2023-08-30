@@ -1,0 +1,342 @@
+{
+  "meta": {
+    "origin": "http://admin.example.com:8082/?realm=root#/journeys/SocureREg",
+    "exportedBy": "No Email",
+    "exportDate": "2023-04-18T21:25:15.425Z",
+    "exportTool": "platform-admin ui tree export",
+    "exportToolVersion": "1.0",
+    "treesSelectedForExport": [
+      "SocureREg"
+    ],
+    "innerTreesIncluded": []
+  },
+  "trees": {
+    "SocureREg": {
+      "tree": {
+        "_id": "SocureREg",
+        "_rev": "1409587002",
+        "identityResource": "managed/user",
+        "uiConfig": {
+          "categories": "[\"Authentication\",\"Registration\"]"
+        },
+        "entryNodeId": "706f3c32-1d15-4101-bde1-7ecab2372a12",
+        "nodes": {
+          "706f3c32-1d15-4101-bde1-7ecab2372a12": {
+            "x": 309,
+            "y": 247,
+            "connections": {
+              "outcome": "7020050e-35d1-4a96-a57a-646e9166de09"
+            },
+            "nodeType": "PageNode",
+            "displayName": "Page Node"
+          },
+          "73bf6968-7aaa-4acf-b245-4fe5759d12b9": {
+            "x": 1727,
+            "y": 296.5,
+            "connections": {
+              "outcome": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0"
+            },
+            "nodeType": "SetSuccessUrlNode",
+            "displayName": "Success URL"
+          },
+          "77e41b4d-a769-4592-aedd-192c89011082": {
+            "x": 1382,
+            "y": 265,
+            "connections": {
+              "true": "5ffb8d00-3cce-4b89-bf0c-58c68a06d845",
+              "false": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "nodeType": "MessageNode",
+            "displayName": "Message Node"
+          },
+          "7e7dc3e6-98df-42ec-b4e5-64f7a771e791": {
+            "x": 971.2222222222223,
+            "y": 212.00694444444446,
+            "connections": {
+              "Error": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Accept": "77e41b4d-a769-4592-aedd-192c89011082",
+              "Reject": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Refer": "706f3c32-1d15-4101-bde1-7ecab2372a12",
+              "Review": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Resubmit": "706f3c32-1d15-4101-bde1-7ecab2372a12"
+            },
+            "nodeType": "SocureDocumentVerificationNode",
+            "displayName": "Socure Predictive DocV"
+          },
+          "7020050e-35d1-4a96-a57a-646e9166de09": {
+            "x": 534.7777777777778,
+            "y": 209.5625,
+            "connections": {
+              "Reject": "e301438c-0bd0-429c-ab0c-66126501069a",
+              "Refer": "7e7dc3e6-98df-42ec-b4e5-64f7a771e791",
+              "Resubmit": "706f3c32-1d15-4101-bde1-7ecab2372a12",
+              "Review": "7e7dc3e6-98df-42ec-b4e5-64f7a771e791",
+              "Accept": "77e41b4d-a769-4592-aedd-192c89011082",
+              "Error": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "nodeType": "SocureIdPlusAuth",
+            "displayName": "SocureId+ Node"
+          },
+          "5ffb8d00-3cce-4b89-bf0c-58c68a06d845": {
+            "x": 1642.3635864257812,
+            "y": 129.67361111111114,
+            "connections": {
+              "CREATED": "73bf6968-7aaa-4acf-b245-4fe5759d12b9",
+              "FAILURE": "e301438c-0bd0-429c-ab0c-66126501069a"
+            },
+            "nodeType": "CreateObjectNode",
+            "displayName": "Create Object"
+          }
+        },
+        "staticNodes": {
+          "startNode": {
+            "x": 170,
+            "y": 253
+          },
+          "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+            "x": 1963,
+            "y": 266
+          },
+          "e301438c-0bd0-429c-ab0c-66126501069a": {
+            "x": 1356,
+            "y": 81.5
+          }
+        },
+        "description": "Reset Password Tree",
+        "enabled": true
+      },
+      "nodes": {
+        "706f3c32-1d15-4101-bde1-7ecab2372a12": {
+          "_id": "706f3c32-1d15-4101-bde1-7ecab2372a12",
+          "_rev": "1790605283",
+          "nodes": [
+            {
+              "_id": "8cab91d8-556f-42b6-bd72-ca65a5495a47",
+              "nodeType": "AttributeCollectorNode",
+              "displayName": "Attribute Collector"
+            }
+          ],
+          "stage": "{\"themeId\":\"36985afc-d842-473b-ac94-4714254d43ea\",\"submitButtonText\":{\"en\":\"Continue\"}}",
+          "pageDescription": {
+            "en": "Please fill out this form to create a new account"
+          },
+          "pageHeader": {
+            "en": "Create an account"
+          },
+          "_type": {
+            "_id": "PageNode",
+            "name": "Page Node",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "outcome",
+              "displayName": "Outcome"
+            }
+          ]
+        },
+        "73bf6968-7aaa-4acf-b245-4fe5759d12b9": {
+          "_id": "73bf6968-7aaa-4acf-b245-4fe5759d12b9",
+          "_rev": "-357793618",
+          "successUrl": "http://admin.example.com:8082",
+          "_type": {
+            "_id": "SetSuccessUrlNode",
+            "name": "Success URL",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "outcome",
+              "displayName": "Outcome"
+            }
+          ]
+        },
+        "77e41b4d-a769-4592-aedd-192c89011082": {
+          "_id": "77e41b4d-a769-4592-aedd-192c89011082",
+          "_rev": "-936960923",
+          "messageYes": {
+            "en": "Success"
+          },
+          "message": {
+            "en": "Document Verified !"
+          },
+          "messageNo": {
+            "en": "Cancel"
+          },
+          "_type": {
+            "_id": "MessageNode",
+            "name": "Message Node",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "true",
+              "displayName": "True"
+            },
+            {
+              "id": "false",
+              "displayName": "False"
+            }
+          ]
+        },
+        "7e7dc3e6-98df-42ec-b4e5-64f7a771e791": {
+          "_id": "7e7dc3e6-98df-42ec-b4e5-64f7a771e791",
+          "_rev": "198082067",
+          "websdkUrl": "",
+          "SocureApiKey": "",
+          "websdkKey": "",
+          "SocureApiEndpoint": "",
+          "_type": {
+            "_id": "SocureDocumentVerificationNode",
+            "name": "Socure Predictive DocV",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "Reject",
+              "displayName": "Reject"
+            },
+            {
+              "id": "Refer",
+              "displayName": "Refer"
+            },
+            {
+              "id": "Resubmit",
+              "displayName": "Resubmit"
+            },
+            {
+              "id": "Review",
+              "displayName": "Review"
+            },
+            {
+              "id": "Accept",
+              "displayName": "Accept"
+            },
+            {
+              "id": "Error",
+              "displayName": "Error"
+            }
+          ]
+        },
+        "7020050e-35d1-4a96-a57a-646e9166de09": {
+          "_id": "7020050e-35d1-4a96-a57a-646e9166de09",
+          "_rev": "1292848065",
+          "SocureApiKey": "",
+          "attributes": {
+            "streetAddress": "postalAddress",
+            "city": "city",
+            "zipCode": "postalCode",
+            "countryCode": "country",
+            "email": "mail",
+            "ssn": "ssn",
+            "lastName": "sn",
+            "dob": "dob",
+            "firstName": "givenName",
+            "mobilePhone": "telephoneNumber",
+            "state": "stateProvince"
+          },
+          "modules": [
+            "emailrisk",
+            "phonerisk",
+            "fraud",
+            "addressrisk",
+            "synthetic",
+            "decision",
+            "kyc"
+          ],
+          "SocureApiEndpoint": "",
+          "_type": {
+            "_id": "SocureIdPlusAuth",
+            "name": "SocureId+ Node",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "Reject",
+              "displayName": "Reject"
+            },
+            {
+              "id": "Refer",
+              "displayName": "Refer"
+            },
+            {
+              "id": "Resubmit",
+              "displayName": "Resubmit"
+            },
+            {
+              "id": "Review",
+              "displayName": "Review"
+            },
+            {
+              "id": "Accept",
+              "displayName": "Accept"
+            },
+            {
+              "id": "Error",
+              "displayName": "Error"
+            }
+          ]
+        },
+        "5ffb8d00-3cce-4b89-bf0c-58c68a06d845": {
+          "_id": "5ffb8d00-3cce-4b89-bf0c-58c68a06d845",
+          "_rev": "371079200",
+          "identityResource": "managed/user",
+          "_type": {
+            "_id": "CreateObjectNode",
+            "name": "Create Object",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "CREATED",
+              "displayName": "Created"
+            },
+            {
+              "id": "FAILURE",
+              "displayName": "Failed"
+            }
+          ]
+        }
+      },
+      "innerNodes": {
+        "8cab91d8-556f-42b6-bd72-ca65a5495a47": {
+          "_id": "8cab91d8-556f-42b6-bd72-ca65a5495a47",
+          "_rev": "-937687238",
+          "attributesToCollect": [
+            "mail",
+            "givenName",
+            "sn",
+            "telephoneNumber",
+            "postalAddress",
+            "city",
+            "postalCode",
+            "country",
+            "stateProvince",
+            "dob",
+            "ssn"
+          ],
+          "identityAttribute": "mail",
+          "validateInputs": false,
+          "required": true,
+          "_type": {
+            "_id": "AttributeCollectorNode",
+            "name": "Attribute Collector",
+            "collection": true
+          },
+          "_outcomes": [
+            {
+              "id": "outcome",
+              "displayName": "Outcome"
+            }
+          ]
+        }
+      },
+      "scripts": {},
+      "emailTemplates": {},
+      "socialIdentityProviders": {},
+      "themes": [],
+      "saml2Entities": {},
+      "circlesOfTrust": {}
+    }
+  }
+}
