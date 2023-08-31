@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +57,7 @@ import me.socure.custom.node.model.AttributesMapping;
 import me.socure.custom.node.model.SocureIDPlusRequestVO;
 import me.socure.custom.node.utils.DateUtils;
 import me.socure.custom.node.utils.Decision;
+import me.socure.custom.node.utils.SocureIDPlusModules;
 
 /**
  * A node that verifies the user attributes
@@ -78,8 +78,11 @@ public class SocureIdPlusAuth extends AbstractDecisionNode implements Node {
     public static final String ID_VERIFICATION = "id-verification";
     public static final String ID_PLUS_DECISION = "idPlus_decision";
     public static final String SUCCESS = "success";
+    public static final String MOBIlE_REGX = "^\\+[1-9]\\s?[0-9\\-]{1,14}$";
     private static final String CALLBACK_DOCV_ID = "docvdata";
     private static final String CALLBACK_DEVICE_ID = "device_id";
+    public static final String ZIP_REGEX = "^[0-9]{5}(?:-[0-9]{4})?$";
+    public static final String SSN_REGX = "\\d{4}|\\d{9}";
     private final Logger logger = LoggerFactory.getLogger(SocureIdPlusAuth.class);
     private final Config config;
     private final Realm realm;
@@ -173,6 +176,11 @@ public class SocureIdPlusAuth extends AbstractDecisionNode implements Node {
         return Optional.ofNullable(tree.getStateFor(this).get(parameter).asString());
     }
 
+    private String getSharedStateValue(NodeState state, String parameter) {
+        return state.isDefined(parameter) ?
+            Optional.ofNullable(state.get(parameter).asString()).orElse(null) : null;
+    }
+
     private SocureIDPlusRequestVO buildRequest(TreeContext context) {
         StringJoiner stringJoiner = new StringJoiner(" | ");
         try {
@@ -190,11 +198,12 @@ public class SocureIdPlusAuth extends AbstractDecisionNode implements Node {
             requestVO.setIpAddress(context.request.clientIp);
             attrMap.entrySet().forEach(entry -> {
                 String key = entry.getKey();
-                stringJoiner.add("Key").add(key);
                 String ldapAttribute = entry.getValue();
-                stringJoiner.add("ldapAttribute").add(ldapAttribute);
-                String value = attributesObj.getOrDefault(ldapAttribute, "").toString();
-                if (attributeMap.containsKey(key)) attributeMap.get(key).accept(requestVO, value);
+                Object value = attributesObj.getOrDefault(ldapAttribute,
+                    getSharedStateValue(state, ldapAttribute));
+                if (null != value && attributeMap.containsKey(key)) {
+                    attributeMap.get(key).accept(requestVO, value.toString());
+                }
             });
             logger.debug(loggerPrefix + "Input data {} ", GSON.toJson(requestVO));
             return requestVO;
@@ -208,42 +217,26 @@ public class SocureIdPlusAuth extends AbstractDecisionNode implements Node {
         List<Callback> callbacks = new ArrayList<>();
         Map<String,String> attributeMap = config.attributes();
         if (null != dob && !DateUtils.isValidDob(dob)) {
-            StringAttributeInputCallback textInputCallback =
-                new StringAttributeInputCallback(attributeMap.get("dob"), "Date of Birth", "", true);
-            callbacks.add(textInputCallback);
+            callbacks.add(getStringInput("dob","Date of Birth"));
         }
         String ssn = requestVO.getNationalId();
-        if (null != ssn && !(ssn.length() == 4 || ssn.length() == 9)) {
-            StringAttributeInputCallback textInputCallback =
-                new StringAttributeInputCallback(attributeMap.get("ssn"), "Social Security Number", "", true);
-            callbacks.add(textInputCallback);
+        if (null != ssn && !(ssn.matches(SSN_REGX))) {
+            callbacks.add(getStringInput("nationalId","Social Security Number"));
         }
         String zipCode = requestVO.getZip();
-        if(null != zipCode && !zipCode.matches("^[0-9]{5}(?:-[0-9]{4})?$")){
-            StringAttributeInputCallback textInputCallback =
-                new StringAttributeInputCallback(attributeMap.get("zipCode"), "Postal Code", "", true);
-            callbacks.add(textInputCallback);
+        if(null != zipCode && !zipCode.matches(ZIP_REGEX)){
+            callbacks.add(getStringInput("zip","Postal Code"));
         }
         String mobileNumber = requestVO.getMobileNumber();
-        if(null != mobileNumber && !mobileNumber.matches("^[0-9]{10}$")){
-            StringAttributeInputCallback textInputCallback =
-                new StringAttributeInputCallback(attributeMap.get("mobilePhone"), "Mobile Phone", "", true);
-            callbacks.add(textInputCallback);
+        if(null != mobileNumber && !mobileNumber.matches(MOBIlE_REGX)){
+            callbacks.add(getStringInput("mobileNumber","Mobile Phone"));
         }
         return callbacks;
     }
 
-    /**
-     * SocureIDPlus Modules
-     */
-    public enum SocureIDPlusModules {
-        emailrisk, phonerisk, fraud, addressrisk, synthetic, decision, kyc;
-
-        public static List<String> toList() {
-            return Arrays.stream(values())
-                .map(SocureIDPlusModules::name)
-                .collect(Collectors.toList());
-        }
+    private StringAttributeInputCallback getStringInput(String attributeName, String prompt){
+        Map<String,String> attributeMap = config.attributes();
+        return new StringAttributeInputCallback(attributeMap.get(attributeName), prompt, "", true);
     }
 
     public static final class OutcomeProvider
@@ -302,21 +295,7 @@ public class SocureIdPlusAuth extends AbstractDecisionNode implements Node {
          */
         @Attribute(order = 400)
         default Map<String, String> attributes() {
-            Map<String, String> attributeMap = new HashMap<>();
-            attributeMap.put("ssn", "ssn");
-            attributeMap.put("mobilePhone", "telephoneNumber");
-            attributeMap.putAll(Map.of("firstName", "givenName",
-                "lastName", "sn",
-                "streetAddress", "postalAddress",
-                "city", "city",
-                "state", "stateProvince",
-                "zipCode", "postalCode",
-                "countryCode", "country",
-                "email", "mail",
-                "dob", "dob"
-            ));
-            return attributeMap;
-
+            return  AttributesMapping.IDPlusAttributes.getMapping();
         }
 
     }

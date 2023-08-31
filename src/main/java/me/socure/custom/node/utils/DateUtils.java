@@ -19,6 +19,7 @@ package me.socure.custom.node.utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
@@ -27,9 +28,13 @@ import java.util.Locale;
  * The type Date utils.
  */
 public class DateUtils {
+
     private static DateTimeFormatter dateFormatter =
-        DateTimeFormatter.ofPattern("uuuu-MM-dd", Locale.US)
-            .withResolverStyle(ResolverStyle.STRICT);
+        new DateTimeFormatterBuilder()
+            .appendOptional(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
+            .appendOptional(DateTimeFormatter.ofPattern("uuuu/MM/dd"))
+            .appendOptional(DateTimeFormatter.ofPattern("uuuuMMdd"))
+            .toFormatter(Locale.US);
 
     /**
      * Is valid dob boolean.

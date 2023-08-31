@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -75,7 +77,9 @@ public class SocureDocumentVerificationNode extends AbstractDecisionNode impleme
     private String loggerPrefix = "[SocureDocumentVerification Node][Marketplace] ";
     private static final String CALLBACK_DOCV_ID = "docvdata";
     private static final String CALLBACK_DEVICE_ID = "device_id";
-
+    /* Pattern to set custom docv parameter to customize the docv */
+    private static final Pattern pattern =
+        Pattern.compile("(#flow|#send_message|#lang|#redirect_method|#url|#doctype)");
     @Inject
     private SocureIDPlusApiClient apiClient;
 
@@ -120,9 +124,11 @@ public class SocureDocumentVerificationNode extends AbstractDecisionNode impleme
             DocvCallbackVO docvCallbackVO = GSON.fromJson(docvData, DocvCallbackVO.class);
 
             SocureIDPlusRequestVO requestObj = new SocureIDPlusRequestVO();
-            requestObj.setModules(SocureIDPlusModules.toList());
+            requestObj.setModules(SocureIDPlusDocvModules.toList());
             requestObj.setDocumentUuid(docvCallbackVO.getDocumentUuid());
+            requestObj.setDeviceSessionId(deviceId);
             requestObj.setIpAddress(context.request.clientIp);
+
             JsonNode resp = apiClient.execute(requestObj, this.config.SocureApiEndpoint(),
                 new String(this.config.SocureApiKey()));
             logger.debug(loggerPrefix + "Response {}", resp.toPrettyString());
@@ -157,11 +163,13 @@ public class SocureDocumentVerificationNode extends AbstractDecisionNode impleme
     }
     private Action buildDocvCallback(final TreeContext context) {
         logger.info(loggerPrefix + "Sending script output");
-        String decvScript = getScriptAsString();
+
+        String decvScript = getScriptAsString(context);
         ScriptTextOutputCallback scriptCallback = new ScriptTextOutputCallback(decvScript);
         HiddenValueCallback hiddenDocvData = new HiddenValueCallback(CALLBACK_DOCV_ID);
         HiddenValueCallback hiddenDeviceId = new HiddenValueCallback(CALLBACK_DEVICE_ID);
-        ImmutableList<Callback> callbacks = ImmutableList.of(scriptCallback, hiddenDocvData,hiddenDeviceId);
+        ImmutableList<Callback> callbacks =
+            ImmutableList.of(scriptCallback, hiddenDocvData, hiddenDeviceId);
         context.getStateFor(this).putShared(CURRENT_STEP, "document_verification");
         return Action.send(callbacks).build();
     }
@@ -180,9 +188,26 @@ public class SocureDocumentVerificationNode extends AbstractDecisionNode impleme
      *
      * @return String java script code block
      */
-    private String getScriptAsString() {
-        return String.format(Constants.fileContent, config.websdkUrl(),
+    private String getScriptAsString(TreeContext context) {
+        String tempString = String.format(Constants.fileContent, config.websdkUrl(),
             new String(config.websdkKey()), new String(config.websdkKey()));
+
+        Matcher matcher = pattern.matcher(tempString);
+
+        Map<String, String> tokens =
+            Map.of("#flow", Optional.ofNullable(config.flow()).orElse("socure_default")
+                , "#send_message", config.sendMessage() ? "true" : "false"
+                , "#lang", context.request.locales.getPreferredLocale().getLanguage()
+                , "#redirect_method", Optional.ofNullable(config.redirectMethod()).orElse("")
+                , "#url", Optional.ofNullable(config.redirect()).orElse(""),
+                "#doctype", Optional.ofNullable(config.defaultDocumentType()).orElse(""));
+        StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, tokens.get(matcher.group(1)));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+
     }
 
     private void storeDocumentAttributesToLDAP(TreeContext context, JsonNode resp) {
@@ -195,11 +220,26 @@ public class SocureDocumentVerificationNode extends AbstractDecisionNode impleme
         if (!hasDocData) return;
         JsonNode documentData = resp.get(DOCUMENT_VERIFICATION).get(DOCUMENT_DATA);
         for (Map.Entry<String, String> entry : docAttribMap.entrySet()) {
-            attributesObj.put(entry.getValue(), documentData.get(entry.getKey()).asText());
+            if (!entry.getValue().isEmpty()) {
+                attributesObj.put(entry.getValue(), documentData.get(entry.getKey()).asText());
+            }
         }
     }
 
 
+
+    /**
+     * SocureIDPlus Modules
+     */
+    public enum SocureIDPlusDocvModules {
+        documentverification, devicerisk, decision;
+
+        public static List<String> toList() {
+            return Arrays.stream(values())
+                .map(SocureIDPlusDocvModules::name)
+                .collect(Collectors.toList());
+        }
+    }
 
     /**
      * Configuration for the node.
@@ -256,16 +296,30 @@ public class SocureDocumentVerificationNode extends AbstractDecisionNode impleme
                 "issueDate", ""
             );
         }
-    }
-    /**
-     * SocureIDPlus Modules
-     */
-    public enum SocureIDPlusModules {
-        documentverification,devicerisk, decision;
-        public static List<String> toList() {
-            return Arrays.stream(values())
-                .map(SocureIDPlusModules::name)
-                .collect(Collectors.toList());
+
+        @Attribute(order = 600)
+        default String flow() {
+            return "socure_default";
+        }
+
+        @Attribute(order = 700)
+        default boolean sendMessage() {
+            return true;
+        }
+
+        @Attribute(order = 800)
+        default String redirect() {
+            return "";
+        }
+
+        @Attribute(order = 900)
+        default String redirectMethod() {
+            return "";
+        }
+
+        @Attribute(order = 1000)
+        default String defaultDocumentType() {
+            return "";
         }
     }
 

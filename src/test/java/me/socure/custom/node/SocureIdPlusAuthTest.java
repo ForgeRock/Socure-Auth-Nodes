@@ -50,7 +50,7 @@ public class SocureIdPlusAuthTest {
     public void process() throws NodeProcessException {
 
 
-        Map map = Map.of("sn","Jane","cn","Doe");
+        Map map = Map.of("givenName", "Jane", "sn", "Doe", "telephoneNumber", "+15129208145");
         JsonValue sharedState = new JsonValue(new HashMap<>());
         sharedState.add("objectAttributes", map);
 

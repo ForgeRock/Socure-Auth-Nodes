@@ -27,6 +27,7 @@ public class SocureIDPlusApiClient {
     public static final String ACCEPT = "accept";
     private static final String KEY_PREFIX = "SocureApiKey ";
     private ObjectMapper objectMapper = null;
+    private final HttpClient client = HttpClient.newHttpClient();
 
     public SocureIDPlusApiClient() {
         this.objectMapper = new ObjectMapper();
@@ -41,7 +42,7 @@ public class SocureIDPlusApiClient {
     public JsonNode execute(final SocureIDPlusRequestVO requestObj, final String uri,
                             final String apiKey)
     throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
+
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(uri))
