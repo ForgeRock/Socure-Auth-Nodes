@@ -14,89 +14,97 @@
  * Copyright 2022 ForgeRock AS.
 -->
 
-# Socure ID+ Identity Verification Nodes
+# Socure ID+ Nodes for ForgeRock
 
-Learn how to install and configure the Socure ID+ Identify Verification nodes for ForgeRock's [Identity Platform](forgerock_platform) 7.2.0 and later. 
 
-## Overview 
+Socure’s ID+ Platform is the leading solution for digital identity verification and trust. Its predictive analytics combine artificial intelligence (AI) and machine learning (ML) techniques with trusted online/offline data intelligence from physical government-issued identity documents, as well as email, phone, address, IP, device, velocity, date of birth, SSN, and the broader internet to verify identities in real time. It is the only solution that analyzes and correlates every facet of an individual’s digital identity to accurately verify their identity while simultaneously detecting and preventing fraud.
 
-Socure’s revolutionary ID+ Platform utilizes every element of identity, natively orchestrated by advanced AI and ML, to maximize accuracy, reduce false positives, and eliminate the need for disparate products. 
+## The Socure Nodes Overview 
 
-After you complete the build and configuration process with ForgeRock, the following three nodes will be available:
+The Socure Nodes embed Socure’s ID+ identity and Predictive Document Verification (DocV) services into your ForgeRock org user onboarding workflow, allowing you to enroll verified users in multi-factor authentication (MFA) with ForgeRock and add Single Sign On (SSO) to your application via ForgeRock.
 
-1. **SocureId+ Node**: Verifies the collected user attributes using Socure's ID+ API and returns a decision for the user identity.
-2. **Socure Predictive Docv Node**: Verifies a user's identity by authenticating their government-issued ID. The collected data is then returned in the response, along with the Predictive Document Verification (DocV) results. 
-3. **Socure DeviceId collector Node** : Collects device information. The information is used in Socure ID+ node to assess device risk.
+Socure provides the following three ForgeRock nodes:
 
-To use all or a subset of these nodes, you have to open an account with Socure and provision the account with the right risk and fraud analysis modules to support your use cases.  The Decision module is required for proper operations of the nodes. Contact Socure for more information.
 
-## Installation 
+1. **Socure ID+ Node:** Verifies the collected user attributes using Socure's ID+ API and returns a decision for the user identity.
+2. **Socure DeviceID Collector Node:** collects device data and creates a device identifier. The device identifier can be included in ID+ API for fraud and risk analysis.
+3. **Socure Predictive DocV Node:** Verifies a user's identity by authenticating their government-issued ID. The collected data is then returned in the response, along with the DocV results.
 
-1. Copy the `.jar` file from the `../target` directory to the `../web-container/webapps/openam/WEB-INF/lib` directory where AM is deployed. 
-2. Restart the web container for the new node to become available. The node will then appear in the Authentication Tree components palette.
+To use all or a subset of these nodes, you have to open an account with Socure and provision the account with the right risk and fraud analysis modules to support your use cases.  The Decision module is required for proper operations of the nodes. Contact Socure for more information
 
-## Use cases
+##How it works​
+The Socure ID+ Node makes outbound calls from your ForgeRock org to the ID+ Platform. When you need to verify a user’s identity during your onboarding workflow or during a user profile update, the Socure ID+ Node triggers an outbound call to the ID+ Platform to verify the user’s Personal Identifiable Information (PII), then receives the ID+ verification results in the response.
 
-The Socure integration with ForgeRock supports both identity verification and identity proofing using the workflows in the sections below. 
+The Socure DeviceID Collector Node can be used in conjunction with ID+ Node to collect device fingerprint data and send the data to ID+ for device risk assessment.
+
+If ID+ is able to verify the identity, the user will be able to continue with the onboarding or profile update workflow. If ID+ cannot verify the identity, the user will be unable to continue. The Socure Predictive DocV Node then loads the DocV Web SDK to initiate the document verification process, and after completing the verification, the document data and results are returned to the ForgeRock process to make the final decision.
+
+###NOTE
+To integrate your Socure account with the Socure ID+ Node, you must have a ForgeRock Identity Platform instance or a ForgeRock Identity Cloud account and a Socure Admin Dashboard account.
+##Use cases
+The Socure integration with ForgeRock supports identity proofing during the initial onboarding of a user using the Journey shown below.
 
 ![ID+ workflow](./screenshots/usecase2.png)
 
-### Use case: SocureId+ Authentication node
 
-To verify a user's identity with the Socure's ID+ API, your Authentication Tree should be configured as follows: 
 
-1. The Page Node gathers the attributes required to verify the user identity. 
-2. The SocureId+ node verifies the identity using the ID+ API and returns a simple decision outcome (reject, refer, resubmit, review, or accept) for the user identity. 
-    - If the decision is accept, the Create Object creates a resource with the information gathered by the previous nodes. The user is then automatically logged in after their identity is verified and the flow is successful. 
-    - If the decision is refer, the Socure Predictive DocV node can be initiated for a step up in authentication. See **Use case: Socure's Predictive Docv Node** below for more information. 
+##Socure ID+ Node
+To verify a user's identity with the Socure's ID+ API, your Authentication Tree should be configured as follows:
 
-### Use case: Socure Predictive Docv Node
+* The Page Node gathers the user attributes (such as name , email, address, phone , DOB) required to verify the user identity.
+T2. The Socure ID+ node verifies the identity using the ID+ API and returns a simple decision outcome (reject, refer, resubmit, review, or accept) for the user identity.
+   - If the decision is “accept”, the Create Object creates a resource with the information gathered by the previous nodes. The user is then automatically logged in after their identity is verified and the flow is successful.
+   - If the decision is “refer”, the Socure Predictive DocV node can be initiated for a step up in authentication. See Use case: Socure's Predictive DocV Node below for more information.
+##Socure DeviceId Collector Node
 
-In use cases that require a step up in authentication, Socure Predictive DocV node can be used as an additional authentication source to authenticate the user's ID and verify their, then recommend if they should be accepted or rejected.
+The DeviceId Collector Node collects device data and creates device and statistical identifiers. With the additional PII received in ID+ API calls, Socure links device data to personal identity attributes for fraud and risk analysis.
 
-When implementing Socure's Predictive DocV node, your Authentication Tree should be configured as follows: 
+The node executes client-side JavaScript code and sets captured device identifiers in Forgerock shared state. The Socure ID+ node utilizes the device identifiers stored in the shared state as input to ID+ API, along with other PII available at that moment, to retrieve available device intelligence.
+##Socure Predictive DocV Node
+In use cases that require a step up in authentication, reset password, or initial onboarding, the Socure Predictive DocV node can be used as an additional authentication source to authenticate the user's ID (driver’s license/passport) and verify their identity, then recommend if they should be accepted or rejected.
 
-1. The Page Node gathers the attributes required to verify the user identity. 
-2. The SocureId+ node verifies the identity using the ID+ API and returns a simple decision outcome (reject, refer, resubmit, review, or accept) for the user identity. 
-3. If the decision is refer, the SocureId+ node will initiate a step up authentication workflow using the Socure Predictive Document Verification (DocV) node and the DocV Web SDK. 
-4. The user follows the instructions in the DocV workflow to authenticate their government-issued ID and verify their identity. After the flow completes successfully, the Create Object will create a resource with the information gathered by the previous nodes. The user is then automatically logged in after their identity is verified and the flow is successful.
+When implementing Socure's Predictive DocV node, your Authentication Tree should be configured as follows:
 
-## Configuration
+1. The Page Node gathers the attributes required to verify the user identity.
+2. The Socure ID+ node verifies the identity using the ID+ API and returns a simple decision outcome (reject, refer, resubmit, review, or accept) for the user identity.
+3. If the decision is “refer”, the Socure ID+ node will initiate a step up authentication workflow using the Socure Predictive Document Verification (DocV) node and the DocV Web SDK.
+4. The user follows the instructions in the DocV workflow to authenticate their government-issued ID and verify their identity. After the flow completes successfully, the Create Object will create a resource with the information gathered by the previous nodes or information collected from government issued ID. The user is then automatically logged in after their identity is verified and the flow is successful.
 
-The code in this repository has binary dependencies that live in the ForgeRock Maven repository. Maven can be configured to authenticate to this repository by following the steps in the [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
 
-### Prerequisites
+##Integrate with the Socure Nodes​
+You can integrate your Socure account with the Socure Nodes by completing the steps in the sections below.
 
-Before completing the configuration steps in the sections below, you will need to create a Socure account to retrieve your API key. 
+Access your account settings in Admin Dashboard​
 
-#### Create an account
+1. Login to Admin Dashboard. If you do not have an Admin Dashboard account, see Socure ID+ Quick Start Guide.
+2. Go to the Developers > ID+ Keys page and copy your API keys for the Production environment.
+3. Go to the Developers > IPs & Domains page and add the the following IP address to the Domain Name list:
+<Your ForgeRock account CIDR range>
 
-1. Go to [Admin Dashboard](dashboard.socure.com).
-2. Click **Create Account**.
-3. Enter the requested information in the fields provided.
-4. Click **Submit**. 
 
-New accounts must be approved by Socure. Once approved, you will receive an email with a link to set your account password. The link will expire after 7 days.
+##Installation
+If you are using the ForgeRock Identity Platform, follow these instructions below to install the Socure ID+ Nodes.
 
-#### Configure your account
+1. Download the latest version of the Socure Nodes jar file from the ForgeRock marketplace https://github.com/ForgeRock/socure-idplus-node/releases
+to your  ../web-container/webapps/openam/WEB-INF/lib directory where AM is deployed.
+2. Restart the web container for the new node to become available. The node will then appear in the Authentication Tree components palette.
+3. Configure your integration in the ForgeRock Platform Portal.
+4. Create a new journey or open an existing journey.
+5. Search for Socure Node in the journey editor window. Two Socure nodes will appear under the marketplace network.
+6. Drag the nodes to the journey and complete the configuration.
 
-1. Log in to [Admin Dashboard](dashboard.socure.com).
-2. On the **Account/Environment** menu, select **Production**, **Certification**, or **Sandbox**.
-3. Go to **Developers > IPs & Domains**, then click **API Access**.
-4. Click **New Domain**, then enter the IP address or domain in the **IP/Domains** field.
-5. Click **Create**.
+If you are using the ForgeRock Identity Cloud, follow the instructions below to install the Socure ID+ Nodes.
 
-#### Retrieve your API Key
+1. Search for Socure Nodes in the Journey Builder. Two Socure nodes will appear under the marketplace network.
+2. Drag and drop the the Socure Nodes and configure them.
 
-1. Log in to [Admin Dashboard](dashboard.socure.com).
-2. Select an environment from the **Account/Environment** menu on the upper-right corner of the page.
-3. Go to **Developers > ID+ Keys**, then click the vertical ellipsis and select **Copy Key**.
 
-Socure provides a set of API keys for the Sandbox, Certification, and Production environments. Users must have the correct permissions enabled for their account to access their keys.
 
-### Configure SocureId+ Node
+##Configuring Socure ID+ Node
 
-Verifies the collected user attributes using Socure's ID+ API and returns a decision for the user identity.
+The ID+ Node verifies the collected user attributes using Socure's ID+ API and returns a decision for the user identity verification process. The node requires user attributes based on modules that need to be executed in ID+. More information about required attributes per modules can be found on developer.socure.com.
+
+
 
 ![Configure SocureId+ node](./screenshots/socureIdPlusConfig.png)
 ![Attributes](./screenshots/attributes.png)
@@ -109,11 +117,12 @@ Verifies the collected user attributes using Socure's ID+ API and returns a deci
 | modules           | A configurable list of ID+ modules that are called in the ID+ API call. Socure ID+ API docs provides more detail about modules. https://developer.socure.com/reference#tag/ID+                                                                                      | emailrisk, phonerisk, fraud, addressrisk, synthetic, decision, kyc                                  |
 | attributes        | Maps ForgeRockLDAP Attributes to ID+ API. The KEY should be the Socure attribute JSON key and the VALUE should be the corresponding ForgeRock LDAP Attribute. | streetAddress, city, zipCode, countryCode, email, ssn, lastName, dob, firstName, mobilePhone, state |
 
-### SocureId+ Node output
+### Socure ID+ Node output
 
-The Decision module's recommendations are determined by Decision Logic, a configurable set of rules that automatically runs when you include the Decision module in a transaction.
+The Decision module's recommendations are determined by Decision Logic*, a configurable set of rules that automatically runs when you include the Decision module in a transaction.
 
 Decision Logic receives each module's transaction results as inputs, then filters the data through a series of conditional statements that check for the presence or absence of specific reason codes or scores. If a transaction's results match the specific criteria in the logic, the decision engine will automatically output one of the following the decision outcomes:
+
 
 | Output |  Description |
 | --- | ---| 
@@ -123,10 +132,29 @@ Decision Logic receives each module's transaction results as inputs, then filter
 | Review            | Manually review the consumer information. |
 | Accept            | The consumer is verified and accepted. |
 
+### Configure Socure deviceID Collector node
+
+The Device Risk Node collects device information using Java Script. The information that the node collects is used by the Socure ID+ Node to assess device risk.
+
+![ScreenShot](./screenshots/deviceid-collector-config.png)
+
+| Configuration             | Description                                                                                        | Example                                           |
+|-------------------|----------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| Name              | A name for the node.                                                                               | Socure DeviceId collector                            |
+| websdkKey | The websdk key to load java script library. The library generate the deviceId that should be used to as an input to ID+ node                                                                |a1b234cd-xxxx-xxxx-xxxx-56abcdef6789 | 
+| websdkUrl         | The URL for the latest version of the Device Risk Web SDK.                                                | https://<your-cname- alias>/device-risk-sdk.js
+
+### Socure DeviceId collector node output
+
+
+| Output |  Description |
+| --- | ---| 
+| Error            | Internal Error while collecting the deviceId  |
+Accept    | DeviceId capture successfully |
 
 ### Configure Socure Predictive Docv node
 
-Verifies a user's identity by authetnicating their government-issued ID. The collected data is then returned in the response, along with the Predictive Document Verification (DocV) results. 
+The Predictive DocV Node Verifies a user's identity by authenticating their government-issued ID. The collected data is then returned in the response, along with the Predictive Document Verification (DocV) results. The node can set document attributes to the user profile.  Document Data contains physical address, name and date of birth. This node always runs device Risk with a document verification process.
 
 ![ScreenShot](./screenshots/docv_config.png)
 ![ScreenShot](./screenshots/docv_attributes.png)
@@ -159,22 +187,3 @@ Decision Logic receives each module's transaction results as inputs, then filter
 | Review            | Manually review the consumer information. |
 | Accept            | The consumer is verified and accepted. |
 
-### Configure Socure deviceID Collector node
-
-The Device Risk Node collects device information using Java Script. The information that the node collects is used by the Socure ID+ Node to assess device risk.
-
-![ScreenShot](./screenshots/deviceid-collector-config.png)
-
-| Configuration             | Description                                                                                        | Example                                           |
-|-------------------|----------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| Name              | A name for the node.                                                                               | Socure DeviceId collector                            |
-| websdkKey | The websdk key to load java script library. The library generate the deviceId that should be used to as an input to ID+ node                                                                |a1b234cd-xxxx-xxxx-xxxx-56abcdef6789 | 
-| websdkUrl         | The URL for the latest version of the Device Risk Web SDK.                                                | https://<your-cname- alias>/device-risk-sdk.js
-
-### Socure DeviceID collector node output
-
-
-| Output |  Description |
-| --- | ---| 
-| Error            | Internal Error while collecting the deviceId  |
- Accept    | DeviceId capture successfully |
