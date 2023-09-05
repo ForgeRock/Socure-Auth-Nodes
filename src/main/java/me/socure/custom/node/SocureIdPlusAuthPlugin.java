@@ -67,7 +67,8 @@ public class SocureIdPlusAuthPlugin extends AbstractNodeAmPlugin {
     @Override
     protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
         return Collections.singletonMap(SocureIdPlusAuthPlugin.currentVersion,
-            java.util.List.of(SocureIdPlusAuth.class, SocureDocumentVerificationNode.class));
+            java.util.List.of(SocureIdPlusAuth.class, SocureDocumentVerificationNode.class,
+                SocureDeviceIDCollector.class));
     }
 
     /**

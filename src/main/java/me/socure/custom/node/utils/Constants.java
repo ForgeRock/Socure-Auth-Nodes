@@ -78,13 +78,33 @@ public class Constants {
         "            document.body.appendChild(socure_div);\n" +
         "        }\n" +
         "\n" +
+        "         const removeEmpty = (obj) => {\n" +
+        "            Object.entries(obj).forEach(([key, val]) =>\n" +
+        "                (val && typeof val === 'object') && removeEmpty(val) ||\n" +
+        "                (val === null || val === \"\") && delete obj[key]\n" +
+        "            );\n" +
+        "            return obj;\n" +
+        "        }; \n" +
         "        document.body.appendChild(script);\n" +
         "\n" +
         "       script.onload = function () {\n" +
         "       clearSession(); \n" +
+        " var modifyExperience = { \n" +
+        " \"sendMessage\": \"#send_message\",\n" +
+        "    \"flow\": { \n" +
+        "    \"name\": \"#flow\" \n" +
+        " },\n" +
+        "\"language\": \"#lang\",  \n" +
+        "   \"redirect\": {\n" +
+        "    \"method\": \"#redirect_method\",\n" +
+        "    \"url\": \"#url\"  \n" +
+        "},\n" +
+        "    \"documentType\": \"#doctype\"\n" +
+        " }; \n" +
+        " removeEmpty(modifyExperience); \n" +
         "       SocureInitializer.init(\"%s\").then(lib => {\n" +
         "                lib.init(\"%s\", \"#socure\", config).then(function () {\n" +
-        "                    lib.start(1);\n" +
+        "                    lib.start(1,null,modifyExperience);\n" +
         "                });\n" +
         "            });\n" +
         "        };\n" +
