@@ -14,10 +14,6 @@
  * Copyright 2022 ForgeRock AS.
 -->
 
-# Socure ID+ Nodes for ForgeRock
-
-
-Socure’s ID+ Platform is the leading solution for digital identity verification and trust. Its predictive analytics combine artificial intelligence (AI) and machine learning (ML) techniques with trusted online/offline data intelligence from physical government-issued identity documents, as well as email, phone, address, IP, device, velocity, date of birth, SSN, and the broader internet to verify identities in real time. It is the only solution that analyzes and correlates every facet of an individual’s digital identity to accurately verify their identity while simultaneously detecting and preventing fraud.
 
 ## The Socure Nodes Overview 
 
