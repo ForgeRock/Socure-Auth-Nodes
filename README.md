@@ -36,7 +36,7 @@ The Socure DeviceID Collector Node can be used in conjunction with ID+ Node to c
 If ID+ is able to verify the identity, the user will be able to continue with the onboarding or profile update workflow. If ID+ cannot verify the identity, the user will be unable to continue. The Socure Predictive DocV Node then loads the DocV Web SDK to initiate the document verification process, and after completing the verification, the document data and results are returned to the ForgeRock process to make the final decision.
 
 ###NOTE
-To integrate your Socure account with the Socure ID+ Node, you must have a ForgeRock Identity Platform instance or a ForgeRock Identity Cloud account and a Socure Admin Dashboard account.
+To integrate your Socure account with the Socure ID+ Node, you must have a ForgeRock Identity Platform instance and a Socure Admin Dashboard account.
 ##Use cases
 The Socure integration with ForgeRock supports identity proofing during the initial onboarding of a user using the Journey shown below.
 
@@ -88,11 +88,6 @@ to your  ../web-container/webapps/openam/WEB-INF/lib directory where AM is deplo
 4. Create a new journey or open an existing journey.
 5. Search for Socure Node in the journey editor window. Two Socure nodes will appear under the marketplace network.
 6. Drag the nodes to the journey and complete the configuration.
-
-If you are using the ForgeRock Identity Cloud, follow the instructions below to install the Socure ID+ Nodes.
-
-1. Search for Socure Nodes in the Journey Builder. Two Socure nodes will appear under the marketplace network.
-2. Drag and drop the the Socure Nodes and configure them.
 
 
 
