@@ -23,7 +23,7 @@
     <artifactId>socure-idplus-node</artifactId>
 
     <groupId>me.socure.fr</groupId>
-    <version>1.0.0-SNAPSHOT</version>    
+    <version>1.0.0</version>    
     <name>Template for an Auth Tree Node maven project</name>
     <description>An Authentication Tree Node for ForgeRock's Identity Platform</description>
 
@@ -42,7 +42,22 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.42</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
     <dependencyManagement>
@@ -82,10 +97,11 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
+            <version>1.18.42</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
 
     <repositories>
         <repository>
@@ -94,7 +110,23 @@
             </snapshots>
             <id>forgerock-private-releases</id>
             <name>ForgeRock Private Release Repository</name>
-            <url>https://maven.forgerock.org/artifactory/private-releases</url>
+            <url>https://maven.forgerock.org/repo/private-releases</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>forgerock-internal-releases</id>
+            <name>ForgeRock Internal Release Repository</name>
+            <url>https://maven.forgerock.org/artifactory/internal-releases</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>forgerock-internal-snapshots</id>
+            <name>ForgeRock Internal Snapshots Repository</name>
+            <url>https://maven.forgerock.org/artifactory/internal-snapshots</url>
         </repository>
     </repositories>
 
