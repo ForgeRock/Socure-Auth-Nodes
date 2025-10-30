@@ -34,6 +34,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <forgerockDistMgmtReleasesUrl>https://maven.forgerock.org/artifactory/internal-releases</forgerockDistMgmtReleasesUrl>
     </properties>
+     <distributionManagement>
+        <repository>
+            <id>forgerock-internal-releases</id>
+            <name>ForgeRock Internal Release Repository</name>
+            <url>https://maven.forgerock.org/artifactory/internal-releases</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>
